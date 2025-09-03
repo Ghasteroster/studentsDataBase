@@ -82,9 +82,11 @@ int main() {
                         std::cout << "Введите название специальности: ";
                         std::cin >> major;
                         displayStudentsByMajor(database, major);
+                        break;
                     }
                     case 2:
                         displayStudents(database);
+                        break;
                     default:
                         std::cout << "Неверный выбор.\n";
                 }
