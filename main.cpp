@@ -71,24 +71,24 @@ int main() {
                 addStudent(database);
                 break;
             case 2:
-                int subChoice;
+                int choice1;
                 std::cout << "1. Вывести список студентов по специальности\n";
                 std::cout << "2. Вывести список всех студентов\n";
-                std::cout << "Выберите действие: ";
-                std::cin >> subChoice;
-
-                if (subChoice == 1) {
-                    std::string major;
-                    std::cout << "Введите название специальности: ";
-                    std::cin >> major;
-                    displayStudentsByMajor(database, major);
-                } else if (subChoice == 2) {
-                    displayStudents(database);
-                } else {
-                    std::cout << "Неверный выбор.\n";
+                std::cin >> choice1;
+               
+                switch (choice1) {
+                    case 1: { 
+                        std::string major;
+                        std::cout << "Введите название специальности: ";
+                        std::cin >> major;
+                        displayStudentsByMajor(database, major);
+                    }
+                    case 2:
+                        displayStudents(database);
+                    default:
+                        std::cout << "Неверный выбор.\n";
                 }
                 break;
-            }
             case 0:
                 std::cout << "Выход из программы.\n";
                 break;
