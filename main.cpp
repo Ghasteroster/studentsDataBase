@@ -44,7 +44,6 @@ void displayStudentsByMajor(const std::vector<Student>& database, const std::str
         if (student.major == major) {
             std::cout << "Имя: " << student.name << "\n";
             std::cout << "Возраст: " << student.age << "\n";
-            std::cout << "Специальность: " << student.major << "\n";
             std::cout << "Средний балл: " << student.gpa << "\n\n";
             found = true;
         }
