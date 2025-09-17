@@ -80,7 +80,7 @@ TEST(DisplayStudentsByMajorTest, FoundStudents) {
     };
 
     std::ostringstream buffer;
-    std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
 
     displayStudentsByMajor(db, "Математика");
 
