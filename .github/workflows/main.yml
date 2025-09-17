@@ -23,4 +23,3 @@ jobs:
       run: |
         g++ -std=c++17 --coverage -o program.out main.cpp -lgtest -lgtest_main -pthread
         ./program.out --test
-        gcovr --xml coverage.cobertura.xml
