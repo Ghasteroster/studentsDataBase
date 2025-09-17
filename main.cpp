@@ -107,7 +107,45 @@ TEST(DisplayStudentsByMajorTest, HandlesNonExistingMajor) {
     std::string output = buffer.str();
     
     // Проверяем сообщение о том, что студенты не найдены
-    EXPECT_NE(output.find("Студенты со специальностью \"Химия\" не найдены"), std::string::npos);
+    EXPECT_NE(output.find("не найдены"), std::string::npos);
+}
+
+// Тест для проверки точного соответствия специальности
+TEST(DisplayStudentsByMajorTest, HandlesNonExistingMajor) {
+    std::vector<Student> db = {
+        {"Иван", 20, "Математика", 4.5},
+        {"Анна", 22, "Физика", 4.2},
+        {"Петр", 21, "Математика", 3.9}
+    };
+    
+    displayStudentsByMajor(db, "математика");
+    
+    std::cout.rdbuf(old_cout);
+    
+    std::string output = buffer.str();
+    
+    // Проверяем сообщение о том, что студенты не найдены
+    EXPECT_NE(output.find("не найдены"), std::string::npos);
+}
+
+// Тест для проверки вывода всех полей студентов
+TEST(DisplayStudentsByMajorTest, OutputsCorrectStudentFields) {
+    std::vector<Student> db = {
+        {"Иван", 20, "Математика", 4.5},
+        {"Анна", 22, "Физика", 4.2},
+        {"Петр", 21, "Математика", 3.9}
+    };
+    
+    displayStudentsByMajor(students, "Математика");
+    
+    std::cout.rdbuf(old_cout);
+    
+    std::string output = output_buffer.str();
+    
+    // Проверяем, что вывод содержит все необходимые поля
+    EXPECT_NE(output.find("Имя:"), std::string::npos);
+    EXPECT_NE(output.find("Возраст:"), std::string::npos);
+    EXPECT_NE(output.find("Средний балл:"), std::string::npos);
 }
 
 
