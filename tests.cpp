@@ -55,7 +55,7 @@ TEST(DisplayStudentsByMajorTest, FoundStudents) {
     };
 
     std::ostringstream buffer;
-    std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_сout = std::cout.rdbuf(buffer.rdbuf());
 
     displayStudentsByMajor(db, "Математика");
 
@@ -67,7 +67,14 @@ TEST(DisplayStudentsByMajorTest, FoundStudents) {
     EXPECT_EQ(output.find("Анна"), std::string::npos);
 }
 
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+int main(int argc, char **argv) {
+    // Если есть аргументы командной строки, запускает тесты
+    if (argc > 1) {
+        ::testing::InitGoogleTest(&argc, argv);
+        return RUN_ALL_TESTS();
+    } else {
+        // Иначе запускает интерактивное меню
+        runInteractiveMode();
+        return 0;
+    }
 }
