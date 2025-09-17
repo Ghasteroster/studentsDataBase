@@ -16,6 +16,6 @@ jobs:
     - name: installation
       run: sudo apt install -y googletest libgtest-dev build-essential gcovr
     - name: make
-      run: make
+      run: g++ -std=c++17 -pthread -I/usr/include/gtest -L/usr/lib/x86_64-linux-gnu 1.cpp -o program.out -lgtest -lpthread
     - name: execute
       run: ./program.out
