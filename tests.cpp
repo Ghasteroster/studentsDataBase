@@ -68,13 +68,6 @@ TEST(DisplayStudentsByMajorTest, FoundStudents) {
 }
 
 int main(int argc, char **argv) {
-    // Если есть аргументы командной строки, запускает тесты
-    if (argc > 1) {
-        ::testing::InitGoogleTest(&argc, argv);
-        return RUN_ALL_TESTS();
-    } else {
-        // Иначе запускает интерактивное меню
-        runInteractiveMode();
-        return 0;
-    }
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
