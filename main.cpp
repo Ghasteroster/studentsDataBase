@@ -92,6 +92,24 @@ TEST(DisplayStudentsByMajorTest, FoundStudents) {
     EXPECT_EQ(output.find("Анна"), std::string::npos);
 }
 
+// Тест для поиска по несуществующей специальности
+TEST(DisplayStudentsByMajorTest, HandlesNonExistingMajor) {
+    std::vector<Student> db = {
+        {"Иван", 20, "Математика", 4.5},
+        {"Анна", 22, "Физика", 4.2},
+        {"Петр", 21, "Математика", 3.9}
+    };
+    
+    displayStudentsByMajor(db, "Химия");
+    
+    std::cout.rdbuf(old_cout);
+    
+    std::string output = buffer.str();
+    
+    // Проверяем сообщение о том, что студенты не найдены
+    EXPECT_NE(output.find("Студенты со специальностью \"Химия\" не найдены"), std::string::npos);
+}
+
 
 void runInteractiveMode() {
     std::vector<Student> database;
