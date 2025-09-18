@@ -1,5 +1,16 @@
-all:
-	g++ -std=c++17 -pthread -I/usr/include/gtest -L/usr/lib/x86_64-linux-gnu tests.cpp -o program.out -lgtest -lpthread
+SRC := tests.cpp
 
-clean:
-	rm program.out
+CPPC := g++
+CPPFLAGS := -std=c++20
+LDFLAGS := -lgtest -lgtest_main -pthread
+TPST := typst compile --root .
+ZTHR := zathura
+
+.PHONY: all
+
+all: run-src
+
+run-src:
+	@echo "Running.."
+	@$(CPPC) $(CPPFLAGS) $(SRC) $(LDFLAGS) -o tests.out
+	@./tests.out --test
