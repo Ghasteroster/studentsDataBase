@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <gtest/gtest.h>
-#include <sstream>
+#include <fstream>
+#include "gtest/gtest.h"
 
 struct Student {
     std::string name;
@@ -38,117 +38,112 @@ void displayStudents(const std::vector<Student>& database) {
     }
 }
 
-// Функция для вывода студентов из базы данных по специальности
-void displayStudentsByMajor(const std::vector<Student>& database, const std::string& major) {
-    bool found = false;
-    std::cout << "Список студентов по специальности:\n";
+void createReport(const std::vector<Student>& database) {
+	std::ofstream report;
+	std::string reportFolder = "report/";
+	system("mkdir report");
+	report.open(reportFolder + "report.typ");
+	report << "#set page(paper: \"a4\", margin: 2cm)\n"
+	<< "#set text(font: (\"Times New Roman\", \"Libertinus Serif\"), size: 12pt)\n"
+	<< "#set par(leading: 1.5em, justify: true)\n\n"
+	<< "#align(center)[\n"
+		<< "\t#text(weight: \"bold\", size: 16pt)[ОТЧЁТ]\n"
+		<< "\t#linebreak()\n"
+		<< "\t#text(style: \"italic\", size: 10pt)[Дата: #datetime.today().display(\"[day].[month].[year]\")]\n"
+	<< "]\n";
+
     for (const Student& student : database) {
-        if (student.major == major) {
-            std::cout << "Имя: " << student.name << "\n";
-            std::cout << "Возраст: " << student.age << "\n";
-            std::cout << "Средний балл: " << student.gpa << "\n\n";
-            found = true;
-        }
+		report << "#block(fill: rgb(\"#f0f0f0\"), inset: 8pt, radius: 4pt, stroke: (left: 2pt + blue))[\n"
+			<< "\t#text(weight: \"bold\")[Студент:] " << student.name << "\\\n"
+			<< "\t#text(weight: \"bold\")[Возраст:] " << student.age << "\\\n"
+			<< "\t#text(weight: \"bold\")[Специальность:] " << student.major << "\\\n"
+		<< "]\n";
+	}
+
+	report.close();
+}
+
+// Тестовые функции
+double calculateAverageGPA(const std::vector<Student>& database) {
+    if (database.empty()) return 0.0;
+
+    double total = 0.0;
+    for (const Student& student : database) {
+        total += student.gpa;
     }
-    if (!found) {
-        std::cout << "Студенты со специальностью \"" << major << "\" не найдены.\n";
+    return total / database.size();
+}
+
+bool isValidGPA(double gpa) {
+    return gpa >= 0.0 && gpa <= 5.0;
+}
+
+bool isValidAge(int age) {
+    return age >= 16 && age <= 100;
+}
+
+// Тесты GoogleTest
+TEST(StudentTest, CalculateAverageGPA) {
+    std::vector<Student> testDatabase;
+
+    Student s1{"Иван", 20, "Информатика", 4.5};
+    Student s2{"Мария", 21, "Математика", 3.8};
+    Student s3{"Петр", 22, "Физика", 4.2};
+
+    testDatabase.push_back(s1);
+    testDatabase.push_back(s2);
+    testDatabase.push_back(s3);
+
+    EXPECT_NEAR(calculateAverageGPA(testDatabase), (4.5 + 3.8 + 4.2) / 3, 0.001);
+}
+
+TEST(StudentTest, CalculateAverageGPAEmpty) {
+    std::vector<Student> emptyDatabase;
+    EXPECT_DOUBLE_EQ(calculateAverageGPA(emptyDatabase), 0.0);
+}
+
+TEST(StudentTest, ValidateGPA) {
+    EXPECT_TRUE(isValidGPA(3.5));
+    EXPECT_TRUE(isValidGPA(0.0));
+    EXPECT_TRUE(isValidGPA(5.0));
+    EXPECT_FALSE(isValidGPA(-1.0));
+    EXPECT_FALSE(isValidGPA(5.1));
+}
+
+TEST(StudentTest, ValidateAge) {
+    EXPECT_TRUE(isValidAge(18));
+    EXPECT_TRUE(isValidAge(25));
+    EXPECT_FALSE(isValidAge(15));
+    EXPECT_FALSE(isValidAge(101));
+}
+
+TEST(ReportTest, CreateReportFileExists) {
+    std::vector<Student> testDatabase;
+
+    Student s1{"Анна", 20, "Информатика", 4.5};
+    Student s2{"Дмитрий", 21, "Математика", 3.8};
+
+    testDatabase.push_back(s1);
+    testDatabase.push_back(s2);
+
+    createReport(testDatabase);
+
+    std::ifstream file("report/report.typ");
+    EXPECT_TRUE(file.good());
+
+    if (file.good()) {
+        std::string content((std::istreambuf_iterator<char>(file)),
+                           std::istreambuf_iterator<char>());
+        EXPECT_FALSE(content.empty());
+
+        EXPECT_TRUE(content.find("Анна") != std::string::npos);
+        EXPECT_TRUE(content.find("Дмитрий") != std::string::npos);
+        EXPECT_TRUE(content.find("Информатика") != std::string::npos);
+        EXPECT_TRUE(content.find("Математика") != std::string::npos);
     }
+
+    file.close();
 }
-
-// TESTS
-
-// Тест для пустой базы данных
-TEST(DisplayStudentsByMajorTest, HandlesEmptyDatabase) {
-    std::vector<Student> empty_database;
-    std::streambuf* old_cout = std::cout.rdbuf(output_buffer.rdbuf());
-    
-    displayStudentsByMajor(empty_database, "Информатика");
-    
-    std::cout.rdbuf(old_cout);
-    
-    std::string output = buffer.str();
-    
-    EXPECT_NE(output.find("не найдены"), std::string::npos);
-}
-
-// Проверяем, что выводятся студенты с заданной специальностью
-TEST(DisplayStudentsByMajorTest, FoundStudents) {
-    std::vector<Student> db = {
-        {"Иван", 20, "Математика", 4.5},
-        {"Анна", 22, "Физика", 4.2},
-        {"Петр", 21, "Математика", 3.9}
-    };
-
-    std::ostringstream buffer;
-    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
-
-    displayStudentsByMajor(db, "Математика");
-
-    std::cout.rdbuf(old_cout);
-
-    std::string output = buffer.str();
-    EXPECT_NE(output.find("Иван"), std::string::npos);
-    EXPECT_NE(output.find("Петр"), std::string::npos);
-    EXPECT_EQ(output.find("Анна"), std::string::npos);
-}
-
-// Тест для поиска по несуществующей специальности
-TEST(DisplayStudentsByMajorTest, HandlesNonExistingMajor) {
-    std::vector<Student> db = {
-        {"Иван", 20, "Математика", 4.5},
-        {"Анна", 22, "Физика", 4.2},
-        {"Петр", 21, "Математика", 3.9}
-    };
-    
-    displayStudentsByMajor(db, "Химия");
-    
-    std::cout.rdbuf(old_cout);
-    
-    std::string output = buffer.str();
-    
-    // Проверяем сообщение о том, что студенты не найдены
-    EXPECT_NE(output.find("не найдены"), std::string::npos);
-}
-
-// Тест для проверки точного соответствия специальности
-TEST(DisplayStudentsByMajorTest, HandlesNonExistingMajor) {
-    std::vector<Student> db = {
-        {"Иван", 20, "Математика", 4.5},
-        {"Анна", 22, "Физика", 4.2},
-        {"Петр", 21, "Математика", 3.9}
-    };
-    
-    displayStudentsByMajor(db, "математика");
-    
-    std::cout.rdbuf(old_cout);
-    
-    std::string output = buffer.str();
-    
-    // Проверяем сообщение о том, что студенты не найдены
-    EXPECT_NE(output.find("не найдены"), std::string::npos);
-}
-
-// Тест для проверки вывода всех полей студентов
-TEST(DisplayStudentsByMajorTest, OutputsCorrectStudentFields) {
-    std::vector<Student> db = {
-        {"Иван", 20, "Математика", 4.5},
-        {"Анна", 22, "Физика", 4.2},
-        {"Петр", 21, "Математика", 3.9}
-    };
-    
-    displayStudentsByMajor(students, "Математика");
-    
-    std::cout.rdbuf(old_cout);
-    
-    std::string output = output_buffer.str();
-    
-    // Проверяем, что вывод содержит все необходимые поля
-    EXPECT_NE(output.find("Имя:"), std::string::npos);
-    EXPECT_NE(output.find("Возраст:"), std::string::npos);
-    EXPECT_NE(output.find("Средний балл:"), std::string::npos);
-}
-
-
 
 int runTests(int argc, char **argv) {
     std::cout << "Запуск тестов...\n";
@@ -163,6 +158,7 @@ void runMainWork() {
         std::cout << "Меню:\n";
         std::cout << "1. Добавить студента\n";
         std::cout << "2. Вывести список студентов\n";
+		std::cout << "3. Создать отчёт\n";
         std::cout << "0. Выход\n";
         std::cout << "Выберите действие: ";
         std::cin >> choice;
@@ -171,30 +167,19 @@ void runMainWork() {
             case 1:
                 addStudent(database);
                 break;
+
             case 2:
-                int choice1;
-                std::cout << "1. Вывести список студентов по специальности\n";
-                std::cout << "2. Вывести список всех студентов\n";
-                std::cin >> choice1;
-               
-                switch (choice1) {
-                    case 1: { 
-                        std::string major;
-                        std::cout << "Введите название специальности: ";
-                        std::cin >> major;
-                        displayStudentsByMajor(database, major);
-                        break;
-                    }
-                    case 2:
-                        displayStudents(database);
-                        break;
-                    default:
-                        std::cout << "Неверный выбор.\n";
-                }
+                displayStudents(database);
                 break;
+
+            case 3:
+                createReport(database);
+                break;
+
             case 0:
                 std::cout << "Выход из программы.\n";
                 break;
+
             default:
                 std::cout << "Неверный выбор. Попробуйте снова.\n";
         }
