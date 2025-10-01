@@ -1,4 +1,4 @@
-SRC := tests.cpp
+SRC := main.cpp
 
 CPPC := g++
 CPPFLAGS := -std=c++20
@@ -13,4 +13,4 @@ all: run-src
 run-src:
 	@echo "Running.."
 	@$(CPPC) $(CPPFLAGS) $(SRC) $(LDFLAGS) -o tests.out
-	@./tests.out --test
+	@./main.out --test
